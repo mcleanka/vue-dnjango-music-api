@@ -20,11 +20,11 @@
 export default {
   name: "TableRow",
   props: {
-    item: Object,
+    itemObj: Object,
   },
   data() {
     return {
-      item: this.item,
+      item: this.itemObj,
     };
   },
   methods: {
