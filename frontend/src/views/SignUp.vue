@@ -82,7 +82,7 @@ export default {
 
         axios
           .post("users/", formData)
-          .then((response) => {
+          .then(() => {
             toast({
               message: "Account created, please login!",
               type: "is-success",
@@ -96,7 +96,7 @@ export default {
           })
           .catch((error) => {
             if (error.response) {
-              for (const property in errors.response.data) {
+              for (const property in error.response.data) {
                 this.errors.push(
                   `${property}: ${error.response.data[property]}`
                 );
