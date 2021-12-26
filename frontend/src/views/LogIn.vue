@@ -2,7 +2,7 @@
   <div class="page-log-in">
     <div class="columns">
       <div class="column is-4 is-offset-4">
-        <h1 class="title">Sign Up</h1>
+        <h1 class="title">Log In</h1>
 
         <form @submit.prevent="submitForm">
           <div class="field">
@@ -39,6 +39,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "LogIn",
   data() {
@@ -50,6 +52,37 @@ export default {
   },
   mounted() {
     document.title = "Log In | API";
+  },
+  methods: {
+    async submitForm() {
+      axios.defaults.headers.common["Authorization"] = "";
+      localStorage.removeItem["token"];
+
+      const formData = {
+        username: this.username,
+        password: this.password,
+      };
+
+      await axios
+        .post("token/login/", formData)
+        .then((response) => {
+          const token = response.data.auth_token;
+          this.$store.commit("setToken", token);
+          axios.defaults.headers.common["Authoriation"] = "Token " + token;
+          localStorage.setItem("token", token);
+          const toPath = this.$route.query.to || "/cart";
+          this.$$route.push(toPath);
+        })
+        .catch((error) => {
+          if (error.response) {
+            for (const property in error.response.data) {
+              this.errors.push(`${property}: ${error.response.data[property]}`);
+            }
+          } else {
+            this.errors.push("Something went wrong. Please try again.");
+          }
+        });
+    },
   },
 };
 </script>
