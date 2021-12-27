@@ -32,7 +32,7 @@
         </div>
 
         <div class="navbar-end" id="navbar-menu">
-          <router-link to="/about" class="navbar-item">about</router-link>
+          <router-link to="/about" class="navbar-item">About</router-link>
 
           <template v-if="$store.state.isAuthenticated">
             <router-link to="/my-account" class="navbar-item"
