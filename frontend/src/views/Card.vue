@@ -26,7 +26,7 @@
         </table>
         <p v-else>You don't have any products in your cart...</p>
       </div>
-      <div class="column is-12 box">
+      <div class="column is-12 box" v-if="cartTotalLength">
         <h2 class="subtitle">Summary</h2>
         <strong>${{ carTotalPrice.toFixed(2) }}</strong
         >, {{ cartTotalLength }} items
