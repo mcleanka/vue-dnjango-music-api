@@ -1,3 +1,5 @@
+import stripe
+
 from django.conf import settings
 from django.shortcuts import render
 from django.http import Http404
@@ -8,18 +10,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
-import stripe
-
-from .serializers import OrderItemSerializer
 
 from .models import Order, OrderItem
+from .serializers import MyOrderSerializer, OrderSerializer
 
 
 @api_view(['POST'])
 @authentication_classes([authentication.TokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
 def checkout(request):
-    serializer = OrderItemSerializer(data=request.data)
+    serializer = OrderSerializer(data=request.data)
 
     if serializer.is_valid():
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -41,3 +41,13 @@ def checkout(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OrdersList(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        orders = Order.objects.filter(user=request.user)
+        serializer = MyOrderSerializer(orders, many=True)
+        return Response(serializer.data)
