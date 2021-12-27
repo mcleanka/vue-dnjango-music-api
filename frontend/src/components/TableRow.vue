@@ -1,18 +1,18 @@
 <template>
   <tr>
     <th>
-      <router-link :to="item.product.get_absolute_url">{{
-        item.product.name
+      <router-link :to="product.product.get_absolute_url">{{
+        product.product.name
       }}</router-link>
     </th>
-    <td>{{ item.product.price }}</td>
+    <td>{{ product.product.price }}</td>
     <td>
-      <a @click="decrementQuantity(item)"><i class="fas fa-minus"></i></a>
-      {{ item.quantity }}
-      <a @click="incrementQuantity(item)"><i class="fas fa-plus"></i></a>
+      <a @click="decrementQuantity(product)"><i class="fas fa-minus"></i></a>
+      {{ product.quantity }}
+      <a @click="incrementQuantity(product)"><i class="fas fa-plus"></i></a>
     </td>
-    <td>${{ getItemTotal(item).toFixed(2) }}</td>
-    <td><button class="delete" @click="removeFromCart(item)"></button></td>
+    <td>${{ getItemTotal(product).toFixed(2) }}</td>
+    <td><button class="delete" @click="removeFromCart(product)"></button></td>
   </tr>
 </template>
 
@@ -20,11 +20,11 @@
 export default {
   name: "TableRow",
   props: {
-    itemObj: Object,
+    item: Object,
   },
   data() {
     return {
-      item: this.itemObj,
+      product: this.item,
     };
   },
   methods: {
