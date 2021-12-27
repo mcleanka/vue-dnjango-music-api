@@ -32,7 +32,7 @@
         </table>
       </div>
 
-      <ShippingDetails v-if="cartTotalLength" />
+      <ShippingDetails v-if="cartTotalLength" :items="cart" />
     </div>
   </div>
 </template>

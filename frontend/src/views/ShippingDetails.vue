@@ -56,22 +56,23 @@
 
     <hr />
 
-    <div id="card-element" class="mb-5 ml-2">
-      <button class="button is-dark" @click="submitForm">
-        Pay with Stripe
-      </button>
-    </div>
+    <div id="card-element" class="mb-5 ml-2"></div>
+
+    <button class="button is-dark" @click="submitForm">Pay with Stripe</button>
   </div>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "ShippingDetails",
+  props: {
+    items: Object,
+  },
   data() {
     return {
-      cart: {
-        items: [],
-      },
+      cart: this.items,
       stripe: {},
       card: {},
       first_name: "",
@@ -83,6 +84,15 @@ export default {
       place: "",
       errors: [],
     };
+  },
+  mounted() {
+    this.stripe = window.Stripe(
+      "pk_test_51KBB4KDstz0lEQf9D5YgD23ZPPdWUp7YyazKvjw31AblD7qwIKmDRXmR5KzsT12K3RfstgP0iLFg5oMugXkDXVun00XrBthAqp"
+    );
+    const elements = this.stripe.elements();
+    this.card = elements.create("card", { hidePostalCode: true });
+
+    this.card.mount("#card-element");
   },
   methods: {
     submitForm() {
@@ -115,6 +125,57 @@ export default {
       if (this.place === "") {
         this.errors.push("The place is missing");
       }
+
+      if (!this.errors.length) {
+        this.$store.commit("setIsLoading", true);
+
+        this.stripe.createToken(this.card).then((result) => {
+          if (result.error) {
+            this.$store.commit("setIsLoading", false);
+            this.errors.push(result.error.message);
+          } else {
+            this.stripeTokenHandler(result.token);
+          }
+        });
+      }
+    },
+    async stripeTokenHandler(token) {
+      const items = [];
+
+      for (let i = 0; i < this.cart.items.length; i++) {
+        const item = this.cart.items[i];
+        const obj = {
+          product: item.product.id,
+          quantity: item.quantity,
+          price: item.product.price * item.quantity,
+        };
+
+        items.push(obj);
+      }
+
+      const data = {
+        first_name: this.first_name,
+        last_name: this.last_name,
+        email: this.email,
+        address: this.address,
+        zipcode: this.zipcode,
+        place: this.place,
+        phone: this.phone,
+        items,
+        stripe_token: token.id,
+      };
+
+      axios
+        .post("checkout/", data)
+        .then(() => {
+          this.$store.commit("clearCart");
+          this.$router.push("/cart/success");
+        })
+        .catch((error) => {
+          this.errors.push(error.message);
+        });
+
+      this.$store.commit("setIsLoading", false);
     },
   },
 };
